@@ -1,14 +1,10 @@
 from flask import Flask, render_template, jsonify, request
+import pickle
 
 app = Flask(__name__)
 
-projects = [{
-    'name': 'my first project',
-    'tasks': [{
-        'name': 'my first task',
-        'completed': False
-    }]
-}]
+with open('projects.pickle', 'rb') as file:
+    projects = pickle.load(file)['projects']
 
 
 @app.route("/")
