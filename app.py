@@ -29,12 +29,12 @@ def create_project():
   projects.append(new_project)
   return jsonify(new_project), 201
 
-# ez egy másik endpoint, a project után egy string típusú változót vár aminek a neve name, az értékét a user beírja
-@app.route("/project/<string:name>")
-def get_project(name):
-  print(name)
+
+@app.route("/project/<string:project_id>")
+def get_project(project_id):
+  print(project_id)
   for project in projects:
-    if project['name'] == name:
+    if project['project_id'] == project_id:
       return jsonify(project)
   return jsonify({'message': 'project not found'}), 404
 
