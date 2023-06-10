@@ -1,11 +1,15 @@
 from flask import Flask, render_template, jsonify, request
 import pickle
+import uuid
 
 app = Flask(__name__)
 
 with open('projects.pickle', 'rb') as file:
     projects = pickle.load(file)['projects']
 
+def save_data(data):
+    with open('projects.pickle', 'wb') as file:
+        pickle.dump(data, file)
 
 @app.route("/")
 def home():
@@ -25,9 +29,23 @@ def get_projects():
 @app.route("/project", methods=['POST'])
 def create_project():
   request_data = request.get_json()
-  new_project = {'name': request_data['name'], 'tasks': request_data['tasks']}
+  new_project_id = uuid.uuid4().hex[:24]
+  new_project = {
+      'name': request_data['name'],
+      'creation_date': request_data['creation_date'],
+      'completed': request_data['completed'],
+      'tasks': request_data['tasks'],
+      'project_id': new_project_id
+  }
+  # loop through each task and add task_id for each:
+  for task in new_project['tasks']:
+    task['task_id'] = uuid.uuid4().hex[:24]
+    # also add checklist_id to each checklist item
+    for checklist_item in task['checklist']:
+      checklist_item['checklist_id'] = uuid.uuid4().hex[:24]
+
   projects.append(new_project)
-  return jsonify(new_project), 201
+  return jsonify({'message': f'project created with id: {new_project_id}'})
 
 
 @app.route("/project/<string:project_id>")
